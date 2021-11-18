@@ -41,7 +41,8 @@ class User extends Authenticatable
         'otp_flag',
         'otp_time',
         'status',
-        'is_phone_verified'
+        'is_phone_verified',
+        'is_approved'
     ];
 
     /**
@@ -212,22 +213,9 @@ class User extends Authenticatable
 
     public function signup($request)
     {
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'mobile' => 'required|numeric|unique:users',
-            'email' => 'required|email|unique:users',
-            'address' => 'required',
-            'password' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            $data = $validator->errors();
-            return array("data" => $data, "status_code" => 204);
-        } else {
+    
             $name = $request->name;
             $email = $request->email;
-            $address = $request->address;
             $mobile = $request->mobile;
             $password = $request->password;
 
@@ -254,6 +242,7 @@ class User extends Authenticatable
                     'phonecode'=>$request->phonecode,
                     'address' =>$request->address,
                     'mobile' =>$request->mobile,
+                    'pincode' =>$request->pincode,
                     'created_at' => date('Y-m-d H:i:s'),
                 ];
 
@@ -279,7 +268,6 @@ class User extends Authenticatable
                 DB::rollback();
                 return array("message" => 'Something went wrong. Please try again', "data" => [], "status" => 204);
             }
-        }
     }
 
     function verifyEmail($token)
@@ -315,7 +303,7 @@ class User extends Authenticatable
         $user_data = DB::table('users')
         ->join('user_details', 'users.id', '=', 'user_details.user_id')
         ->where('users.id', $user_id)
-        ->select('users.id','users.name','users.email','users.mobile','users.is_email_verified','users.is_phone_verified','user_details.country_id as country','user_details.state_id as state','user_details.city','user_details.address','user_details.phonecode','user_details.mobile as mobile_without_code')
+        ->select('users.id','users.name','users.email','users.mobile','users.is_email_verified','users.is_phone_verified','user_details.country_id as country','user_details.state_id as state','user_details.city','user_details.address','user_details.phonecode','user_details.mobile as mobile_without_code','user_details.pincode')
         ->first();
 
         $user_data->country  = $this->getCountryName($user_data->country);
@@ -342,7 +330,6 @@ class User extends Authenticatable
             }else{
                 $subObj->showTrial = 1;
             }
-
         }
         return  $subObj;
 
