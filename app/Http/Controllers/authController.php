@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\UserVerify;
 use Auth;
 use DB;
 use Hash;
@@ -37,7 +38,7 @@ class authController extends Controller
 			return redirect('business/dashboard');
 		}
 		else {
-			return back()->with('error', 'wrong username and password');
+			return redirect('/login')->with('error', 'Wrong e-mail or password!');
 		}
 	}
 
@@ -93,7 +94,6 @@ class authController extends Controller
 			'password' => Hash::make($request->password),
 			'status' => 1,
 			'is_approved' => 0,
-			'remember_token' => $token,
 			'is_email_verified' => 0,
 			'created_at' => date('Y-m-d H:i:s')
 		);
@@ -112,10 +112,20 @@ class authController extends Controller
 			'created_at' => date('Y-m-d H:i:s'),
 		);
 
+		// UserVerify::where('user_id', $user_id)->delete();
+		// DB::table('users_verify')->where('user_id', $user_id)->delete();
+
 		DB::table('user_details')->insert($data2);
 		DB::table('business_categories_linking')->insert([
 			'business_id' => $user_id,
 			'category_id' => $cat_id,
+		]);
+
+		DB::table('users_verify')->insert([
+			'user_id' => $user_id,
+			'token' => $token,
+			'created_at' => date('Y-m-d H:i:s'),
+			'updated_at' => date('Y-m-d H:i:s'),
 		]);
 
 		Mail::send('mail.signup_success', ['token' => $token], function ($message) use ($request) {
@@ -123,6 +133,36 @@ class authController extends Controller
 			$message->subject('Email Verification Mail');
 		});
 
-		return redirect('/signup')->with('success', 'Please verify your email to activate your account.');
+		return redirect('/login')->with('success-register', 'Please verify your email to activate your account.');
 	}
+
+	public function verifyBusiness($token)
+	 {
+			$verifyUser = DB::table('users_verify')->where('token', $token)->first();
+			if (!empty($verifyUser)) {
+			$user_id = $verifyUser->user_id;
+			$user = DB::table('users')->where('id', $user_id)->first();
+			}
+
+			if (!is_null($verifyUser)) {
+
+				if ($user->is_email_verified == 0) {
+					// $token_time = strtotime($verifyUser->created_at);
+					// $current_time = strtotime(date('Y-m-d H:i:s'));
+					// $diff_min =  round(abs($current_time - $token_time) / 60, 2);
+					// if ($diff_min > 15) {
+					// 	// return array("message" => 'Link is expired');
+					// 	return redirect('/login')->with('error', 'Link is expired.');
+					// }
+					DB::table('users')->where('id', $user_id)->update(['is_email_verified' => 1]);
+					// DB::table('users_verify')->where('token', $token)->delete();
+				return redirect('/login')->with('success-verify', 'Your e-mail is verified.');
+				} else {
+				// $message = "Your e-mail is already verified. You can now login.";
+				return redirect('/login')->with('verified', 'Your e-mail is already verified. You can now login.');
+				}
+			} else {
+			return redirect('/login')->with('error', 'Sorry your email cannot be identified.');
+			}
+		}
 }

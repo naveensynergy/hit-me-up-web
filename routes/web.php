@@ -34,6 +34,7 @@ Route::post('/loginpost', [authController::class, 'loginpost']);
 Route::get('/logout',  [authController::class, 'logout']);
 Route::get('/signup',  [authController::class, 'SignUp']);
 Route::post('/store-business',  [authController::class, 'storeBusiness']);
+Route::get('account/verify/{token}', [authController::class, 'verifyBusiness'])->name('business.verify');
 Route::post('admin/get-states', [adminController::class, 'getStates']);
 Route::post('admin/get-categories', [adminController::class, 'getCategories']);
 Route::post('/business-signup-process',  [businessController::class, 'businessSignUpProcess']);
