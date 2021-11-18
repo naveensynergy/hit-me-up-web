@@ -1,4 +1,4 @@
-@extends('layouts\admin\master')
+@extends('layouts.admin.master')
 @section('title')
 Sign In
 @endsection
@@ -16,13 +16,9 @@ Sign In
  <div class="main  main-raised ">
     <div class="blog-post ">
        <div class="container">
-
-
           <article id="post-4381" class="section section-text">
              <div class="row">
                 <div class="col-md-8 page-content-wrap  col-md-offset-2">
-
-
                    <div class="" style="margin-bottom: 50px;">
                       <p id="fail"></p>
                       <script>

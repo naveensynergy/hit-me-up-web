@@ -17,7 +17,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->role == '1') {
+        if (Auth::check() && Auth::user()->role_id == '1') {
             return $next($request)->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         } else {
             return redirect('/login')->with('error','You must login first!');

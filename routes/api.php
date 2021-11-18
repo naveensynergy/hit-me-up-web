@@ -38,21 +38,8 @@ Route::post('sendForgetPasswordLink', [Generalcontroller::class, 'sendForgetPass
 Route::get('changePassword/{token?}', [Generalcontroller::class, 'changePasswordGet'])->name('user.changepassword.get');
 Route::post('changePassword', [Generalcontroller::class, 'changePasswordPost'])->name('user.changepassword.post');
 
-//  subscriptions apis
+//subscriptions apis
 Route::post('check-subscriptions',[Generalcontroller::class, 'checkSubscription']);
 Route::get('subscriptions-list',[Generalcontroller::class, 'subscriptionsList']);
 Route::post('buy-subscriptions',[Generalcontroller::class, 'buySubscription']);
 Route::post('pay-subscriptions',[Generalcontroller::class, 'paySubscription']);
-
-//listings apis
-Route::get('categories-list/{id?}',[Generalcontroller::class, 'categoriesList']);
-Route::get('offers-list',[Generalcontroller::class, 'offersList']);
-Route::post('promotions-list',[Generalcontroller::class, 'promotionsList']);
-Route::post('promotions-list2',[Generalcontroller::class, 'promotionsList2']);
-
-//fundraising apis
-Route::post('/fund-rasing-request',[Generalcontroller::class,'requestFundRaising']);
-Route::post('/contact-us',[Generalcontroller::class,'contactUs']);
-Route::get('/business-list',[Generalcontroller::class,'businessList']);
-Route::get('/promotions-list-by-id/{id}',[Generalcontroller::class,'promotionsListById']);
-
