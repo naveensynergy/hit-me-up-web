@@ -20,11 +20,6 @@ Add Business
                 <div class="row">
                     <div class="col-md-12  add-btn ">
                         <div class="container">
-                            @if(session()->has('success'))
-                            <script>
-                                swal("Good job!", "You clicked the button!", "success");
-                            </script>
-                            @endif
                             <form method="post" action="{{url('/store-business')}}">
                                 @csrf
                                 <div class="row">
