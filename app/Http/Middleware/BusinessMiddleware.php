@@ -24,7 +24,8 @@ class BusinessMiddleware
                 if (Auth::user()->is_approved == 1) {
                     return $next($request)->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
                 } elseif (Auth::user()->is_approved == 2) {
-                    return redirect('/login')->with('rejected', 'rejected.');
+                    $msg = array('title' => 'Rejected!', 'text' => 'Account rejected by admin!');
+                    return redirect('/login')->with('msg-error', $msg);
                 }
                 else {
                     return redirect('/login')->with('approved_error', 'Not approved.');
@@ -36,7 +37,8 @@ class BusinessMiddleware
                     $message->to(Auth::user()->email);
                     $message->subject('Email Verification Mail');
                 });
-                return redirect('/login')->with('verifyemail_error', 'email not verified.');
+                $msg = array('title' => 'Email not Verified!', 'text' => 'We have sent you an e-mail. Please check your email and verify through e-mail to complete sign-up process.');
+                return redirect('/login')->with('msg-error', $msg);
             }
         } else {
             return redirect('/login')->with('error','You must login first!');

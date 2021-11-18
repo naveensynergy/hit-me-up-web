@@ -132,8 +132,9 @@ class authController extends Controller
 			$message->to($request->email);
 			$message->subject('Email Verification Mail');
 		});
+		$msg = array('title' => 'Registered!', 'text' => 'Please verify your email to activate your account!');
 
-		return redirect('/login')->with('success-register', 'Please verify your email to activate your account.');
+		return redirect('/login')->with('msg', $msg);
 	}
 
 	public function verifyBusiness($token)
@@ -155,7 +156,8 @@ class authController extends Controller
 					// 	return redirect('/login')->with('error', 'Link is expired.');
 					// }
 					DB::table('users')->where('id', $user_id)->update(['is_email_verified' => 1]);
-					// DB::table('users_verify')->where('token', $token)->delete();
+				// DB::table('users_verify')->where('token', $token)->delete();
+				$msg = array('title' => 'Email Verified!', 'text' => 'Your e-mail is verified, Account will be approved by admin. You will be notified through e-mail once done.');
 				return redirect('/login')->with('success-verify', 'Your e-mail is verified.');
 				} else {
 				// $message = "Your e-mail is already verified. You can now login.";

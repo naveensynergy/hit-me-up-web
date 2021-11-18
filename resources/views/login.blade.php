@@ -49,6 +49,24 @@ Sign In
                         </button>
                      </div>
                      @endif
+                     @if(!empty(session()->has('msg-success')))
+                     <script>
+                        Swal.fire({
+                           icon: 'success',
+                        title: '{{session()->get("msg")["title"]}}',
+                        text: '{{session()->get("msg")["text"]}}',
+                        })
+                     </script>
+                     @endif
+                     @if(!empty(session()->has('msg-error')))
+                     <script>
+                        Swal.fire({
+                           icon: 'error',
+                        title: '{{session()->get("msg")["title"]}}',
+                        text: '{{session()->get("msg")["text"]}}',
+                        })
+                     </script>
+                     @endif
                      @if(session()->has('success-register'))
                      <script>
                         Swal.fire(
@@ -91,15 +109,6 @@ Sign In
                            icon: 'info',
                            title: 'Pending!',
                            text: 'Account not approved by admin. You will be notified through e-mail once done.',
-                        })
-                     </script>
-                     @endif
-                     @if(session()->has('rejected'))
-                     <script>
-                        Swal.fire({
-                           icon: 'error',
-                        title: 'Rejected!',
-                        text: 'Account rejected by admin!',
                         })
                      </script>
                      @endif
