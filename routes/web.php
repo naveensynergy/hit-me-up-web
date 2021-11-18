@@ -24,6 +24,7 @@ use App\Http\Controllers\authController;
 use App\Http\Controllers\businessController;
 use App\Http\Controllers\adminController;
 
+
 // Route::get('/', function () {
 //     return view('welcome');
 // });
@@ -69,7 +70,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::post('/update-promotion/{id}', [adminController::class, 'updatePromotion']);
     Route::get('/view-promotion/{id}', [adminController::class, 'viewPromotion']);
     Route::get('/delete-promotion/{id}', [adminController::class, 'deletePromotion']);
+
+    //subscriptions list
+    Route::get('/subscriptions', [adminController::class,'subscriptions']);
+    Route::get('/view-subscription/{id}', [adminController::class,'viewSubscription']);
 });
+
 Route::group(['prefix' => 'business', 'middleware' => 'business'], function () {
 
     // Promotions by Business Module Start
@@ -81,7 +87,7 @@ Route::group(['prefix' => 'business', 'middleware' => 'business'], function () {
     Route::post('/update-promotion/{id}', [businessController::class, 'updatePromotion']);
     Route::get('/view-promotion/{id}', [businessController::class, 'viewPromotion']);
     Route::get('/delete-promotion/{id}', [businessController::class, 'deletePromotion']);
-    // Route::get('/list', [businessController::class, 'businessOwnerList']);
+
 });
 // Route::get('submitVote', [UserController::class, 'submitVote']);
 

@@ -14,9 +14,23 @@ class Generalcontroller extends Controller
 {
     public function signup(Request $request)
     {
+        $this->signupValidation($request);
         $user = new User();
         $return = $user->signup($request);
         exit(json_encode($return));
+    }
+
+    public function signupValidation($request){
+        $mobile = DB::table('users')->where('mobile',$request->phonecode.$request->mobile)->first();
+        $email = DB::table('users')->where('email',$request->email)->first();
+        if(!empty($email)){
+            $return = array("message" => "Email already taken!", "data" => "", "status_code" => 204);
+            exit(json_encode($return));
+        }
+        if(!empty($mobile)){
+            $return = array("message" => "Mobile number already taken!", "data" => "", "status_code" => 204);
+            exit(json_encode($return));
+        }
     }
 
     public function countriesList()
@@ -43,6 +57,7 @@ class Generalcontroller extends Controller
         $login_type = $request->login_type;
 
         if ($login_type == 1) {   // email password login
+            $this->loginValidation($request);
             $user = new User();
             $return = $user->loginWithPassword($request);
             exit(json_encode($return));
@@ -53,6 +68,19 @@ class Generalcontroller extends Controller
         } elseif ($login_type == 3) {
             $user = new User();
             $return = $user->verifyOtp($request);
+            exit(json_encode($return));
+        }
+    }
+
+    public function loginValidation($request){
+        $mobile = DB::table('users')->where('mobile',$request->phonecode.$request->mobile)->first();
+        $email = DB::table('users')->where('email',$request->email)->first();
+        if(empty($email)){
+            $return = array("message" => "Email not found!", "data" => "", "status_code" => 204);
+            exit(json_encode($return));
+        }
+        if(empty($mobile)){
+            $return = array("message" => "Mobile not found!", "data" => "", "status_code" => 204);
             exit(json_encode($return));
         }
     }

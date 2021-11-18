@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use Hash;
+use App\Models\User;
+use App\Http\Controllers\Generalcontroller as Generalcontroller;
 
 class adminController extends Controller
 {
@@ -72,9 +74,9 @@ class adminController extends Controller
 			'is_email_verified' => 1,
 			'created_at' => date('Y-m-d H:i:s')
 		);
-
+		
 		$user_id = DB::table('users')->insertGetId($data1);
-
+		
 		$data2 = array(
 			'user_id' => $user_id,
 			'country_id' => $request->country_id,
@@ -86,16 +88,16 @@ class adminController extends Controller
 			'pincode' => $request->pincode,
 			'created_at' => date('Y-m-d H:i:s'),
 		);
-
+		
 		DB::table('user_details')->insert($data2);
 		DB::table('business_categories_linking')->insert([
 			'business_id' => $user_id,
 			'category_id' => $cat_id,
 		]);
-
+		
 		return redirect('admin/businesses')->with('success', 'Business added successfully.');
 	}
-
+	
 	public function businessEdit($business_id)
 	{
 		$countries = DB::table('countries')->get();
@@ -106,12 +108,12 @@ class adminController extends Controller
 		->join('user_details', 'user_details.user_id', '=', 'users.id')
 		->join('business_categories_linking', 'business_categories_linking.business_id', '=', 'users.id')
 		->where('users.id', $business_id)->first();
-
+		
 		$category_id = $business_data->category_id;
 		$cat_id = DB::table('business_categories')->where('id', $category_id)->where('status', 1)->where('parent_id', 0)->first();
 		$sub_cat_id = DB::table('business_categories')->where('id', $category_id)->where('status', 1)->where('parent_id','!=', 0)->first();
 		// dd($cat_id, $sub_cat_id);
-
+		
 		// $category = $sub_cat->parent_id;
 		return view('admin.editBusiness', [
 			'countries' => $countries,
@@ -123,7 +125,7 @@ class adminController extends Controller
 			'sub_cat_id' => $sub_cat_id,
 		]);
 	}
-
+	
 	public function businessUpdate(Request $request, $business_id)
 	{
 		// dd($business_id);
@@ -133,7 +135,7 @@ class adminController extends Controller
 		} else {
 			$cat_id = $request->category_id;
 		}
-
+		
 		$request->validate([
 			'business_name' => 'required',
 			'email' => 'required|email|unique:users,email,'.$business_id,
@@ -146,7 +148,7 @@ class adminController extends Controller
 			'state_id' => 'required',
 			'category_id' => 'required',
 		]);
-
+		
 		$data1 = array(
 			'role_id' => 2,
 			'name' => $request->business_name,
@@ -157,12 +159,12 @@ class adminController extends Controller
 			'status' => 1,
 			'created_at' => date('Y-m-d H:i:s')
 		);
-
+		
 		// dd($data1);
-
+		
 		// $user_id = DB::table('users')->insertGetId($data1);
 		DB::table('users')->where('id', $business_id)->update($data1);
-
+		
 		$data2 = array(
 			'user_id' => $business_id,
 			'country_id' => $request->country_id,
@@ -174,36 +176,36 @@ class adminController extends Controller
 			'pincode' => $request->pincode,
 			'created_at' => date('Y-m-d H:i:s'),
 		);
-
+		
 		DB::table('user_details')->where('user_id', $business_id)->update($data2);
 		DB::table('business_categories_linking')->where('business_id', $business_id)->update([
 			'business_id' => $business_id,
 			'category_id' => $cat_id,
 		]);
-
+		
 		return redirect('admin/businesses')->with('success', 'Business updated successfully.');
 	}
-
+	
 	public function businessView($business_id)
 	{
 		$business_data = DB::table('users')
 		->join('user_details', 'user_details.user_id', '=', 'users.id')
 		->join('business_categories_linking', 'business_categories_linking.business_id', '=', 'users.id')
 		->where('users.id', $business_id)->first();
-
+		
 		// dd($business_data);
-
+		
 		return view('admin.viewBusiness', [
 			'result' => $business_data,
 		]);
 	}
-
+	
 	public function businessDelete($business_id)
 	{
 		DB::table('users')->where('id', $business_id)->delete();
 		DB::table('user_details')->where('user_id', $business_id)->delete();
 		DB::table('business_categories_linking')->where('business_id', $business_id)->delete();
-
+		
 		return redirect('admin/businesses')->with('success', 'Business deleted successfully.');
 	}
 	
@@ -237,19 +239,19 @@ class adminController extends Controller
 		}
 		return $sub;
 	}
-
+	
 	public function categories()
 	{
 		$categories = DB::table('business_categories')->get();
 		return view('admin.categories', ['categories' => $categories]);
 	}
-
+	
 	public function addCategory()
 	{
 		$categories = DB::table('business_categories')->where('parent_id', 0)->get();
 		return view('admin.addCategory', ['categories' => $categories]);	
 	}
-
+	
 	public function storeCategory(Request $request)
 	{
 		// dd($request->all());
@@ -258,9 +260,9 @@ class adminController extends Controller
 			$request->validate([
 				'category_name' => 'required',
 			]);
-
+			
 			// dd($request->all());
-
+			
 			DB::table('business_categories')->insert([
 				'category_name' => $request->category_name,
 				'status' => 1,
@@ -271,7 +273,7 @@ class adminController extends Controller
 				'category_id' => 'required',
 				'sub_cat_name' => 'required',
 			]);
-
+			
 			// dd($request->all());
 			DB::table('business_categories')->insert([
 				'parent_id' => $request->category_id,
@@ -282,14 +284,14 @@ class adminController extends Controller
 		}
 		return redirect('admin/categories')->with('success', 'Category added successfully.');
 	}
-
+	
 	public function editCategory($category_id)
 	{
 		$categories = DB::table('business_categories')->where('parent_id', 0)->get();
 		$category_data = DB::table('business_categories')->where('id', $category_id)->first();
 		return view('admin.editCategory', ['categories' => $categories,'category_data' => $category_data,]);
 	}
-
+	
 	public function updateCategory(Request $request, $cat_id)
 	{
 		// dd($request->all());
@@ -298,7 +300,7 @@ class adminController extends Controller
 			$request->validate([
 				'category_name' => 'required',
 			]);
-
+			
 			DB::table('business_categories')->where('id', $cat_id)->update([
 				'category_name' => $request->category_name,
 				'status' => 1,
@@ -309,7 +311,7 @@ class adminController extends Controller
 				'category_id' => 'required',
 				'sub_cat_name' => 'required',
 			]);
-
+			
 			DB::table('business_categories')->where('id', $cat_id)->update([
 				'parent_id' => $request->category_id,
 				'category_name' => $request->sub_cat_name,
@@ -319,27 +321,27 @@ class adminController extends Controller
 		}
 		return redirect('admin/categories')->with('success', 'Category updated successfully.');
 	}
-
+	
 	public function deleteCategory($cat_id)
 	{
 		DB::table('business_categories')->where('id', $cat_id)->delete();
 		return redirect('admin/categories')->with('success', 'Category deleted successfully.');
 	}
-
+	
 	// Promotion Module Start
 	public function promotions()
 	{
 		$promotions = DB::table('promotions')->get();
 		return view('admin.promotions', ['promotions' => $promotions]);
 	}
-
+	
 	public function addPromotion()
 	{
 		$promotions = DB::table('promotions')->get();
 		$business_list = DB::table('users')->where('role_id', 2)->where('is_approved', 1)->where('is_email_verified', 1)->get();
 		return view('admin.addPromotion', ['promotions' => $promotions, 'business_list' => $business_list]);
 	}
-
+	
 	public function storePromotion(Request $request)
 	{
 		// dd($request->all());
@@ -351,13 +353,13 @@ class adminController extends Controller
 			'type' => 'required',
 			'discount' => 'required',
 		]);
-
+		
 		$title = $request->title;
 		$description = $request->description;
 		$type = $request->type;
 		$discount = $request->discount;
 		$business_id = $request->business;
-
+		
 		$data = array(
 			'business_id' => $business_id,
 			'title' => $title,
@@ -366,11 +368,11 @@ class adminController extends Controller
 			'discount' => $discount,
 			'created_at' => date('Y-m-d H:i:s'),
 		);
-
+		
 		DB::table('promotions')->insert($data);
 		return redirect('admin/promotions')->with('success', 'Promotion added successfully.');
 	}
-
+	
 	public function editPromotion($promotion_id)
 	{
 		$business_list = DB::table('users')->where('role_id', 2)->where('is_approved', 1)->where('is_email_verified', 1)->get();
@@ -380,7 +382,7 @@ class adminController extends Controller
 			'business_list' => $business_list,
 		]);
 	}
-
+	
 	public function updatePromotion(Request $request, $promotion_id)
 	{
 		// dd($request->all());
@@ -391,13 +393,13 @@ class adminController extends Controller
 			'discount' => 'required',
 			'business' => 'required',
 		]);
-
+		
 		$title = $request->title;
 		$description = $request->description;
 		$type = $request->type;
 		$discount = $request->discount;
 		$business_id = $request->business;
-
+		
 		$data = array(
 			'business_id' => $business_id,
 			'title' => $title,
@@ -406,20 +408,65 @@ class adminController extends Controller
 			'discount' => $discount,
 			'created_at' => date('Y-m-d H:i:s'),
 		);
-
+		
 		DB::table('promotions')->where('id', $promotion_id)->where('business_id', $business_id)->update($data);
 		return redirect('admin/promotions')->with('success', 'Promotion updated successfully.');
 	}
-
+	
 	public function deletePromotion($promotion_id)
 	{
 		DB::table('promotions')->where('id', $promotion_id)->delete();
 		return redirect('admin/promotions')->with('success', 'Promotion deleted successfully.');
 	}
-
+	
 	public function viewPromotion($promotion_id)
 	{
 		$promotion = DB::table('promotions')->where('id', $promotion_id)->first();
 		return view('admin.viewPromotion', ['promotion' => $promotion]);
 	}
+	
+	
+	//---------------------------- subscriptions--------------------------------------------
+	
+	public function subscriptions(Request $request){
+		if(count($request->all()) > 0){
+			$subscriptions = DB::table('user_subscriptions');
+			if(isset($request->sub_id) && ($request->sub_id != "")){
+				$subscriptions->where('sub_id',$request->sub_id);
+			}
+			if(isset($request->search) && !empty($request->search)){
+				$subscriptions->join('users','users.id','user_subscriptions.user_id')
+				->where('name', 'like', '%' . $request->search . '%')
+				->where(function ($query) use ($request) {
+					$query->orWhere('mobile','like', '%' . $request->search . '%');
+				});
+				
+			}
+			$subscriptions->where('user_subscriptions.status',1)->orderBy('user_subscriptions.starts_at','desc');			
+		}else{
+			$subscriptions = DB::table('user_subscriptions')->where('status',1)->orderBy('id','desc');
+		}
+		$subscriptions = $subscriptions->paginate(10);
+		// $subscriptions = $subscriptions->groupBy('user_subscriptions.user_id')->paginate(1);
+		
+		$packages = DB::table('subscriptions')->get();
+		foreach ($subscriptions as $subscription){
+			$subscription->user_id = (new User())->fetch_user_details($subscription->user_id);
+			$subscription->sub_id = (new Generalcontroller())->subscriptions_detail($subscription->sub_id);
+		}
+		
+		return view('admin.subscriptions', ['subscriptions' => $subscriptions,'packages' => $packages]);
+		
+	}
+
+	public function viewSubscription($user_id){
+		$user_details = (new User())->fetch_user_details($user_id);
+		$subscriptions = DB::table('user_subscriptions')->where('user_id', $user_id)->orderBy('id','desc')->get();
+		foreach ($subscriptions as $sub){
+			$sub->sub_id = (new Generalcontroller())->subscriptions_detail($sub->sub_id);
+		}
+
+		return view('admin.viewSubscription', ['subscriptions' => $subscriptions,'user'=>$user_details]);
+	}
+	
 }
