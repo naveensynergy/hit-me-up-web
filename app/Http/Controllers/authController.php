@@ -133,7 +133,8 @@ class authController extends Controller
 			$message->subject('Email Verification Mail');
 		});
 
-		return redirect('/login')->with('success-register', 'Please verify your email to activate your account.');
+		$msg = array('title' => 'Registered!', 'text' => 'Please verify your email to activate your account!');
+                    return redirect('/login')->with('msg-success', $msg);
 	}
 
 	public function verifyBusiness($token)
@@ -156,10 +157,12 @@ class authController extends Controller
 					// }
 					DB::table('users')->where('id', $user_id)->update(['is_email_verified' => 1]);
 					// DB::table('users_verify')->where('token', $token)->delete();
-				return redirect('/login')->with('success-verify', 'Your e-mail is verified.');
+					$msg = array('title' => 'Email Verified!', 'text' => 'Your e-mail is verified, Account will be approved by admin. You will be notified through e-mail once done.');
+                    return redirect('/login')->with('msg-success', $msg);
 				} else {
 				// $message = "Your e-mail is already verified. You can now login.";
-				return redirect('/login')->with('verified', 'Your e-mail is already verified. You can now login.');
+				$msg = array('title' => 'Email Verified!', 'text' => 'Your e-mail is already verified, You can now login.');
+                    return redirect('/login')->with('msg-success', $msg);
 				}
 			} else {
 			return redirect('/login')->with('error', 'Sorry your email cannot be identified.');

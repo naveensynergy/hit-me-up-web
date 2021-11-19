@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use DB;
 use Hash;
 use App\Models\User;
+use Mail;
 use App\Http\Controllers\Generalcontroller as Generalcontroller;
 
 class adminController extends Controller
@@ -101,13 +102,13 @@ class adminController extends Controller
 	public function businessEdit($business_id)
 	{
 		$countries = DB::table('countries')->get();
-		$states = DB::table('states')->get();
 		$phonecodes = DB::table('phonecodes')->get();
 		$categories = DB::table('business_categories')->where('status', 1)->where('parent_id', 0)->get();
 		$business_data = DB::table('users')
 		->join('user_details', 'user_details.user_id', '=', 'users.id')
 		->join('business_categories_linking', 'business_categories_linking.business_id', '=', 'users.id')
 		->where('users.id', $business_id)->first();
+		$states = DB::table('states')->where('country_id', $business_data->country_id)->get();
 		
 		$category_id = $business_data->category_id;
 		$cat_id = DB::table('business_categories')->where('id', $category_id)->where('status', 1)->where('parent_id', 0)->first();
@@ -182,6 +183,13 @@ class adminController extends Controller
 			'business_id' => $business_id,
 			'category_id' => $cat_id,
 		]);
+
+		if ($request->status == 1 || $request->status == 2) {
+			Mail::send('mail.account_status', ['status' => $request->status], function ($message) use ($request) {
+				$message->to($request->email);
+				$message->subject('Account Status Mail');
+			});
+		}
 		
 		return redirect('admin/businesses')->with('success', 'Business updated successfully.');
 	}
@@ -468,5 +476,154 @@ class adminController extends Controller
 
 		return view('admin.viewSubscription', ['subscriptions' => $subscriptions,'user'=>$user_details]);
 	}
+
+
+	//---------------------------- customers--------------------------------------------
 	
+	public function customers()
+	{
+		$customers = DB::table('users')
+		->join('user_details', 'user_details.user_id', '=', 'users.id')
+		->where('users.role_id', 3)->get();
+		
+		return view('admin.customersList', ['customers' => $customers]);
+	}
+
+	public function addCustomer()
+	{
+		$countries = DB::table('countries')->get();
+		$states = DB::table('states')->get();
+		$phonecodes = DB::table('phonecodes')->get();
+		return view('admin.addCustomer', [
+			'countries' => $countries,
+			'states' => $states,
+			'phonecodes' => $phonecodes,
+		]);
+	}
+
+	public function storeCustomer(Request $request)
+	{
+		$request->validate([
+			'customer_name' => 'required',
+			'email' => 'required|email|unique:users',
+			'mobile' => 'required|numeric|unique:users',
+			'password' => 'required',
+			'address' => 'required',
+			'city' => 'required',
+			'pincode' => 'required',
+			'country_id' => 'required',
+			'state_id' => 'required',
+		]);
+		
+		$data1 = array(
+			'role_id' => 3,
+			'name' => $request->customer_name,
+			'mobile' => $request->mobile,
+			'email' => $request->email,
+			'password' => Hash::make($request->password),
+			'status' => 1,
+			'is_approved' => 1,
+			'is_email_verified' => 0,
+			'created_at' => date('Y-m-d H:i:s')
+		);
+		
+		$user_id = DB::table('users')->insertGetId($data1);
+		
+		$data2 = array(
+			'user_id' => $user_id,
+			'country_id' => $request->country_id,
+			'state_id' => $request->state_id,
+			'city' => $request->city,
+			'phonecode' => $request->phonecode,
+			'address' => $request->address,
+			'mobile' => $request->mobile,
+			'pincode' => $request->pincode,
+			'created_at' => date('Y-m-d H:i:s'),
+		);
+		
+		DB::table('user_details')->insert($data2);
+		return redirect('admin/customers')->with('success', 'Customer added successfully.');
+	}
+
+	public function editCustomer($customer_id)
+	{
+		$countries = DB::table('countries')->get();
+		$phonecodes = DB::table('phonecodes')->get();
+		$customer_data = DB::table('users')
+		->join('user_details', 'user_details.user_id', '=', 'users.id')
+		->where('users.id', $customer_id)->first();
+		$states = DB::table('states')->where('country_id', $customer_data->country_id)->get();
+		
+		return view('admin.editCustomer', [
+			'countries' => $countries,
+			'states' => $states,
+			'phonecodes' => $phonecodes,
+			'result' => $customer_data,
+		]);
+	}
+
+	public function updateCustomer(Request $request, $customer_id)
+	{
+		$request->validate([
+			'customer_name' => 'required',
+			'email' => 'required|email|unique:users,email,'.$customer_id,
+			'mobile' => 'required|numeric|unique:users,mobile,'.$customer_id,
+			'address' => 'required',
+			'city' => 'required',
+			'pincode' => 'required',
+			'country_id' => 'required',
+			'state_id' => 'required',
+			'email_verified' => 'required',
+		]);
+		
+		$data1 = array(
+			'role_id' => 3,
+			'name' => $request->customer_name,
+			'mobile' => $request->mobile,
+			'email' => $request->email,
+			'is_email_verified' => $request->email_verified,
+			'status' => 1,
+			'created_at' => date('Y-m-d H:i:s')
+		);
+		
+		// dd($data1);
+		
+		// $user_id = DB::table('users')->insertGetId($data1);
+		DB::table('users')->where('id', $customer_id)->update($data1);
+		
+		$data2 = array(
+			'user_id' => $customer_id,
+			'country_id' => $request->country_id,
+			'state_id' => $request->state_id,
+			'city' => $request->city,
+			'phonecode' => $request->phonecode,
+			'address' => $request->address,
+			'mobile' => $request->mobile,
+			'pincode' => $request->pincode,
+			'created_at' => date('Y-m-d H:i:s'),
+		);
+		
+		DB::table('user_details')->where('user_id', $customer_id)->update($data2);
+		return redirect('admin/customers')->with('success', 'Customer updated successfully.');
+	}
+
+	public function viewCustomer($customer_id)
+	{
+		$customer_data = DB::table('users')
+		->join('user_details', 'user_details.user_id', '=', 'users.id')
+		->where('users.id', $customer_id)->first();
+		
+		// dd($business_data);
+		return view('admin.viewCustomer', [
+			'result' => $customer_data,
+		]);
+	}
+
+	public function deleteCustomer($customer_id)
+	{
+		DB::table('users')->where('id', $customer_id)->delete();
+		DB::table('user_details')->where('user_id', $customer_id)->delete();
+		
+		return redirect('admin/customers')->with('success', 'Customer deleted successfully.');
+	}
 }

@@ -1,13 +1,13 @@
 @extends('layouts.admin.master')
 @section('title')
-Edit Business
+Edit Customer
 @endsection
 @section('content')
 <div id="primary" class="boxed-layout-header page-header header-small" data-parallax="active">
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1 text-center">
-                <h1 class="hestia-title ">Edit Business</h1>
+                <h1 class="hestia-title ">Edit Customer</h1>
             </div>
         </div>
     </div>
@@ -20,14 +20,14 @@ Edit Business
                 <div class="row">
                     <div class="col-md-12  add-btn ">
                         <div class="container">
-                            <form method="post" action="{{url('admin/business-update')}}/{{$result->user_id}}">
+                            <form method="post" action="{{url('admin/customer-update')}}/{{$result->user_id}}">
                                 @csrf
                                 <div class="row">
                                     <div class="form-group col-md-6">
-                                        <label for="NameDemo">Business Name:</label>
-                                        <input type="text" class="form-control" aria-describedby="nameHelp" placeholder="Enter Business Name" name="business_name" value="{{$result->name}}">
-                                        @if($errors->has('business_name'))
-                                        <div class="error" style="color:red;">{{ $errors->first('business_name') }}</div>
+                                        <label for="NameDemo">Customer Name:</label>
+                                        <input type="text" class="form-control" aria-describedby="nameHelp" placeholder="Enter Customer Name" name="customer_name" value="{{$result->name}}">
+                                        @if($errors->has('customer_name'))
+                                        <div class="error" style="color:red;">{{ $errors->first('customer_name') }}</div>
                                         @endif
                                     </div>
                                     
@@ -123,63 +123,17 @@ Edit Business
                                             @endif
                                         </div>
                                     </div>
-                                    
-                                    @if (!empty($cat_id))
+
                                     <div class="row">
                                         <div class="form-group col-md-6">
-                                            <label for="passDemo">Category:</label>
-                                            <select name="category_id" id="category_id" class="form-control">
+                                            <label for="passDemo">Email Verified:</label>
+                                            <select name="email_verified" id="email_verified" class="form-control">
                                                 <option value="">Choose...</option>
-                                                @if (!empty($categories))
-                                                @foreach ($categories as $key => $category)
-                                                <option value="{{$category->id}}" {{ $cat_id->id == $category->id ? "selected" : "" }}>{{$category->category_name}}</option>
-                                                @endforeach
-                                                @endif
+                                                <option value="0" {{$result->is_email_verified == "0" ? "selected" : ""}}>No</option>
+                                                <option value="1" {{$result->is_email_verified == "1" ? "selected" : ""}}>Yes</option>
                                             </select>
-                                            @if($errors->has('category_id'))
-                                            <div class="error" style="color:red;">{{ $errors->first('category_id') }}</div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    @endif
-                                    
-                                    @if (!empty($sub_cat_id))
-                                    <div class="row">
-                                        <div class="form-group col-md-6">
-                                            <label for="passDemo">Category:</label>
-                                            <select name="category_id" id="category_id" class="form-control">
-                                                <option value="">Choose...</option>
-                                                @if (!empty($categories))
-                                                @foreach ($categories as $key => $category)
-                                                <option value="{{$category->id}}" {{ $sub_cat_id->parent_id == $category->id ? "selected" : "" }}>{{$category->category_name}}</option>
-                                                @endforeach
-                                                @endif
-                                            </select>
-                                            @if($errors->has('category_id'))
-                                            <div class="error" style="color:red;">{{ $errors->first('category_id') }}</div>
-                                            @endif
-                                        </div>
-                                        @endif
-                                        <div class="form-group col-md-6" id="add_subcat">
-                                            <label for="passDemo">Sub-Category:</label>
-                                            <select name="subcat_id" id="subcat_id" class="form-control">
-                                            </select>
-                                            @if($errors->has('subcat_id'))
-                                            <div class="error" style="color:red;">{{ $errors->first('subcat_id') }}</div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="form-group col-md-6">
-                                            <label for="passDemo">Status:</label>
-                                            <select name="status" id="status" class="form-control">
-                                                <option value="">Choose...</option>
-                                                <option value="0" {{$result->is_approved == "0" ? "selected" : ""}}>Pending</option>
-                                                <option value="1" {{$result->is_approved == "1" ? "selected" : ""}}>Approved</option>
-                                                <option value="2" {{$result->is_approved == "2" ? "selected" : ""}}>Rejected</option>
-                                            </select>
-                                            @if($errors->has('status'))
-                                            <div class="error" style="color:red;">{{ $errors->first('status') }}</div>
+                                            @if($errors->has('email_verified'))
+                                            <div class="error" style="color:red;">{{ $errors->first('email_verified') }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -196,49 +150,6 @@ Edit Business
         @endsection
         @section('script')
         <script>
-            $(document).ready(function() {
-                // var country_id = $('#country_id option:selected').val();
-                // var url = '{{url("admin/get-states")}}';
-                // var _token = $('meta[name="csrf-token"]').attr('content');
-                // $.ajax({
-                //     url: url,
-                //     type: "POST",
-                //     data: {
-                //         country_id: country_id,
-                //         _token: _token
-                //     },
-                //     success: function(response) {
-                //         console.log(response);
-                //         $("#state_id").html(response);
-                //         return false;
-                //     }
-                // });
-                
-                var category_id = $('#category_id option:selected').val();
-                var url = '{{url("admin/get-categories")}}';
-                var _token = $('meta[name="csrf-token"]').attr('content');
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    data: {
-                        category_id: category_id,
-                        _token: _token
-                    },
-                    success: function(response) {
-                        console.log(response);
-                        if (response != 'false') {
-                            $('#add_subcat').show();
-                            $("#subcat_id").html(response);
-                            return false;
-                        } else {
-                            $('#add_subcat').hide();
-                            $('#subcat_id').val('');
-                        }
-                        // $("#state_id").html(response);
-                        return false;
-                    }
-                });
-            });
             $("#country_id").on('change', function(){
                 var country_id = $('#country_id option:selected').val();
                 var url = '{{url("admin/get-states")}}';
@@ -253,35 +164,6 @@ Edit Business
                     success: function(response) {
                         console.log(response);
                         $("#state_id").html(response);
-                        return false;
-                    }
-                });
-            });
-            
-            // get catogories by category id
-            // $('#add_subcat').hide();
-            $("#category_id").on('change', function(){
-                var category_id = $('#category_id').val();
-                var url = '{{url("admin/get-categories")}}';
-                var _token = $('meta[name="csrf-token"]').attr('content');
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    data: {
-                        category_id: category_id,
-                        _token: _token
-                    },
-                    success: function(response) {
-                        console.log(response);
-                        if (response != 'false') {
-                            $('#add_subcat').show();
-                            $("#subcat_id").html(response);
-                            return false;
-                        } else {
-                            $('#add_subcat').hide();
-                            $('#subcat_id').val('');
-                        }
-                        // $("#state_id").html(response);
                         return false;
                     }
                 });
