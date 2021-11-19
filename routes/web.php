@@ -75,6 +75,15 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     //subscriptions list
     Route::get('/subscriptions', [adminController::class,'subscriptions']);
     Route::get('/view-subscription/{id}', [adminController::class,'viewSubscription']);
+
+    //customers list
+    Route::get('/customers', [adminController::class,'customers']);
+    Route::get('/add-customer', [adminController::class, 'addCustomer']);
+    Route::post('/store-customer', [adminController::class, 'storeCustomer']);
+    Route::get('/customer-edit/{id}', [adminController::class, 'editCustomer']);
+    Route::post('/customer-update/{id}', [adminController::class, 'updateCustomer']);
+    Route::get('/customer-view/{id}', [adminController::class, 'viewCustomer']);
+    Route::get('/customer-delete/{id}', [adminController::class, 'deleteCustomer']);
 });
 
 Route::group(['prefix' => 'business', 'middleware' => 'business'], function () {

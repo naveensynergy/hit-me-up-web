@@ -49,57 +49,21 @@ Sign In
                         </button>
                      </div>
                      @endif
-                     @if(!empty(session()->has('msg-success')))
+                     @if(!empty(Session()->get('msg-error')))
+                     <script>
+                        Swal.fire({
+                           icon: 'error',
+                        title: '{{session()->get("msg-error")["title"]}}',
+                        text: '{{session()->get("msg-error")["text"]}}',
+                        })
+                     </script>
+                     @endif
+                     @if(!empty(session()->get('msg-success')))
                      <script>
                         Swal.fire({
                            icon: 'success',
-                        title: '{{session()->get("msg")["title"]}}',
-                        text: '{{session()->get("msg")["text"]}}',
-                        })
-                     </script>
-                     @endif
-                     @if(!empty(session()->has('msg-error')))
-                     <script>
-                        Swal.fire({
-                           icon: 'error',
-                        title: '{{session()->get("msg")["title"]}}',
-                        text: '{{session()->get("msg")["text"]}}',
-                        })
-                     </script>
-                     @endif
-                     @if(session()->has('success-register'))
-                     <script>
-                        Swal.fire(
-                        'Registered!',
-                        'Please verify your email to activate your account!',
-                        'success'
-                        )
-                     </script>
-                     @endif
-                     @if(session()->has('success-verify'))
-                     <script>
-                        Swal.fire(
-                        'Email Verified!',
-                        'Your e-mail is verified, Account will be approved by admin. You will be notified through e-mail once done.',
-                        'success'
-                        )
-                     </script>
-                     @endif
-                     @if(session()->has('verified'))
-                     <script>
-                        Swal.fire(
-                        'Email Verified!',
-                        'Your e-mail is already verified, You can now login.',
-                        'success'
-                        )
-                     </script>
-                     @endif
-                     @if(session()->has('verifyemail_error'))
-                     <script>
-                        Swal.fire({
-                           icon: 'error',
-                           title: 'Email not Verified!',
-                           text: 'We have sent you an e-mail. Please check your email and verify through e-mail to complete sign-up process.',
+                        title: '{{session()->get("msg-success")["title"]}}',
+                        text: '{{session()->get("msg-success")["text"]}}',
                         })
                      </script>
                      @endif
@@ -108,7 +72,7 @@ Sign In
                         Swal.fire({
                            icon: 'info',
                            title: 'Pending!',
-                           text: 'Account not approved by admin. You will be notified through e-mail once done.',
+                           text: 'Account not approved by admin yet. You will be notified through e-mail once done.',
                         })
                      </script>
                      @endif

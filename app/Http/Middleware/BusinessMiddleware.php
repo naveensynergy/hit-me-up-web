@@ -38,7 +38,7 @@ class BusinessMiddleware
                     $message->subject('Email Verification Mail');
                 });
                 $msg = array('title' => 'Email not Verified!', 'text' => 'We have sent you an e-mail. Please check your email and verify through e-mail to complete sign-up process.');
-                return redirect('/login')->with('msg-error', $msg);
+                    return redirect('/login')->with('msg-error', $msg);
             }
         } else {
             return redirect('/login')->with('error','You must login first!');
